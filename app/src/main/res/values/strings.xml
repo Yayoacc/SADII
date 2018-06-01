@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">SADII</string>
+    <string name="title_activity_splash_sadii">SplashSADII</string>
+    <string name="title_activity_desktop">desktop</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_panel">panel</string>
+    <string name="title_activity_principal">principal</string>
+    <string name="title_activity_dsktp">Map</string>
+</resources>
