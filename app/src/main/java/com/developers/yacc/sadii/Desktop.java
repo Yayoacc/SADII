@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,11 +27,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import dmax.dialog.SpotsDialog;
+import io.netopen.hotbitmapgg.library.view.RingProgressBar;
 
 public class Desktop extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     Connection con;
     String un, passw, db, ip, value;
+    RingProgressBar ringProgressBar1, ringProgressBar2;
+    int porcent = 0;
+    Handler handlerpb = new Handler() {
+        if(msg.what ==0)
+
+        {
+            if (porcent < 100) {
+                porcent = Integer.parseInt(value);
+                ringProgressBar1.setProgress(porcent);
+                ringProgressBar2.setProgress(porcent);
+            }
+        }
+    };
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ip = "208.118.63.49";
@@ -50,6 +65,7 @@ public class Desktop extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         Select select = new Select();// this is the Asynctask, which is used to process in background to reduce load on app process
         select.execute("");
+        setContentView(R.layout.content_desktop);
     }
 
     @Override
