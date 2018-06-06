@@ -12,5 +12,23 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.developers.yacc.sadii.Desktop"
     tools:showIn="@layout/app_bar_desktop">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <io.netopen.hotbitmapgg.library.view.RingProgressBar
+            android:id="@+id/progress_bar_1"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            app:max="100"
+            app:ringColor="@color/bluelight"
+            app:ringProgressColor="@color/bluelight"
+            app:ringWidth="3dp"
+            app:style="STROKE"
+            app:textColor="@color/orange"
+            app:textIsShow="true"
+            app:textSize="16sp"/>
+    </LinearLayout>
 
 </FrameLayout>
