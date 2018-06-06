@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -36,13 +37,15 @@ public class Desktop extends AppCompatActivity
     RingProgressBar ringProgressBar1, ringProgressBar2;
     int porcent = 0;
     Handler handlerpb = new Handler() {
-        if(msg.what ==0)
+        public void handleMessage(Message msg) {
+            if (msg.what == 0)
 
-        {
-            if (porcent < 100) {
-                porcent = Integer.parseInt(value);
-                ringProgressBar1.setProgress(porcent);
-                ringProgressBar2.setProgress(porcent);
+            {
+                if (porcent < 100) {
+                    porcent = Integer.parseInt(value);
+                    ringProgressBar1.setProgress(porcent);
+                    ringProgressBar2.setProgress(porcent);
+                }
             }
         }
     };
@@ -66,6 +69,27 @@ public class Desktop extends AppCompatActivity
         Select select = new Select();// this is the Asynctask, which is used to process in background to reduce load on app process
         select.execute("");
         setContentView(R.layout.content_desktop);
+        ringProgressBar1 = (RingProgressBar) findViewById(R.id.progress_bar_1);
+        ringProgressBar2 = (RingProgressBar) findViewById(R.id.progress_bar_2);
+        ringProgressBar1.setOnProgressListener(new RingProgressBar.OnProgressListener() {
+            @Override
+            public void progressToComplete() {
+
+            }
+        });
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < 100; i++) {
+                    try {
+                        Thread.sleep(1000);
+                        handlerpb.sendEmptyMessage(0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 
     @Override
