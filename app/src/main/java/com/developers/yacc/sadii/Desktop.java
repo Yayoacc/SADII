@@ -1,7 +1,11 @@
 package com.developers.yacc.sadii;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,37 +22,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import dmax.dialog.SpotsDialog;
-import io.netopen.hotbitmapgg.library.view.RingProgressBar;
+import com.juang.jplot.PlotPastelito;
 
-public class Desktop extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+public class Desktop extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     Connection con;
     String un, passw, db, ip, value;
-    RingProgressBar ringProgressBar1, ringProgressBar2;
-    int porcent = 0;
-    Handler handlerpb = new Handler() {
-        public void handleMessage(Message msg) {
-            if (msg.what == 0)
-
-            {
-                if (porcent < 100) {
-                    porcent = Integer.parseInt(value);
-                    ringProgressBar1.setProgress(porcent);
-                    ringProgressBar2.setProgress(porcent);
-                }
-            }
-        }
-    };
+    private PlotPastelito pastel;
+    private LinearLayout pantalla;
+    Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         ip = "208.118.63.49";
@@ -68,28 +59,6 @@ public class Desktop extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         Select select = new Select();// this is the Asynctask, which is used to process in background to reduce load on app process
         select.execute("");
-        setContentView(R.layout.content_desktop);
-        ringProgressBar1 = (RingProgressBar) findViewById(R.id.progress_bar_1);
-        ringProgressBar2 = (RingProgressBar) findViewById(R.id.progress_bar_2);
-        ringProgressBar1.setOnProgressListener(new RingProgressBar.OnProgressListener() {
-            @Override
-            public void progressToComplete() {
-
-            }
-        });
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < 100; i++) {
-                    try {
-                        Thread.sleep(1000);
-                        handlerpb.sendEmptyMessage(0);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
     }
 
     @Override
@@ -104,19 +73,13 @@ public class Desktop extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.desktop, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -129,7 +92,6 @@ public class Desktop extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
         if (id == R.id.warning) {
             getSupportFragmentManager().beginTransaction().replace(R.id.content_desktop, new fragment_warnings()).commit();
         } else if (id == R.id.nav_account) {
@@ -143,7 +105,6 @@ public class Desktop extends AppCompatActivity
         } else if (id == R.id.nav_about) {
 
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -157,9 +118,6 @@ public class Desktop extends AppCompatActivity
         try {
             Class.forName("net.sourceforge.jtds.jdbc.Driver").newInstance();
             ConnectionURL = "jdbc:jtds:sqlserver://"+server+";database=" + database + ";user=" + user + ";password=" + password + ";";
-            //ConnectionURL = "jdbc:jtds:sqlserver://192.168.1.9;database=msss;instance=SQLEXPRESS;Network Protocol=NamedPipes" ;
-
-
             connection = DriverManager.getConnection(ConnectionURL);
         } catch (SQLException se) {
             Log.e("error here 1 : ", se.getMessage());
@@ -174,58 +132,41 @@ public class Desktop extends AppCompatActivity
     public class Select extends AsyncTask<String, String, String> {
         String z = "";
         Boolean isSuccess = false;
-        SpotsDialog waitdialog = new SpotsDialog(Desktop.this);
         @Override
         protected void onPreExecute() {
-            waitdialog.show();
+
         }
         @Override
         protected void onPostExecute(String r) {
-            Toast.makeText(Desktop.this, r, Toast.LENGTH_SHORT).show();
-            waitdialog.dismiss();
             Toast.makeText(Desktop.this, value, Toast.LENGTH_SHORT).show();
-            /*if (r.equals("Login successful")){
-                Intent desk = new Intent(Desktop.this, Desktop.class);
-                startActivityForResult(desk, 0);
-                finish();
-            }
-            *//*else if(r.equals("Please enter Username and Password")){
-                if (usr.trim().equalsIgnoreCase("")) {
-                    user.setError("Este campo no puede estar vacio");
-                } else if (psw.trim().equalsIgnoreCase("")) {
-                    pass.setError("Este campo no puede estar vacio");
-                }
-            }*//*
-            else if(r.equals("Invalid Credentials!")) {
-                popup.setContentView(R.layout.activity_pop_up);
-                close = (TextView) popup.findViewById(R.id.close);
-                cl = (Button) popup.findViewById(R.id.Ok);
-                close.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        popup.dismiss();
-                    }
-                });
-                cl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        popup.dismiss();
+            context = Desktop.this;
+            pantalla= (LinearLayout) (findViewById(R.id.pantalla));
+            pastel=new PlotPastelito(context,"Humedad");//puedes usar simplemente "this" en lugar de context
+            int humedad = Integer.parseInt(value);
+            int resto = 100 - humedad;
+            float[] datapoints = {resto, humedad};
+            String[] etiquetas={"porcentaje", "humedad"};
+            pastel.SetDatos(datapoints,etiquetas);
+            pastel.SetColorTitulo(0, 255, 0 );
+            pastel.SetColorAcot(255, 160, 2);
+            pastel.SetColorTextGrafico(255, 255, 255);
+            pastel.SetColorFondo(255, 255,255 );
+            pastel.SetColorDato(0, 29, 5, 126 );
+            pastel.SetColorDato(1, 107, 255, 130 );
+            pastel.SetColorContorno(255, 255, 255);
+            pastel.SetShowPorcentajes(true);
 
-                    }
-                });
-                popup.show();
-            }
-            if (isSuccess) {
-                z = "Login successful";
-                Toast.makeText(Login.this , "Login successful" , Toast.LENGTH_LONG).show();
-                //finish();
-            }*/
+   /*antes de mostrar el grafico en pantalla(LinearLayout) deben de ir todos los ajustes "Set" del grafico.
+       Todos los metodos publicos que ayudan a personalizar el grafico se describen cada uno en la siguiente sección */
+
+            pastel.SetHD(true); //ajustamos la calidad hd que suaviza bordes del grafico. por default esta desactivado
+            pantalla.addView(pastel);
+            //finish();
         }
-
         @Override
         protected String doInBackground(String... params) {
                 try {
-                    con = connectionclass(un, passw, db, ip);        // Connect to database
+                    con = connectionclass(un, passw, db, ip);
                     if (con == null) {
                         z = "Check Your Internet Access!";
                     } else {
